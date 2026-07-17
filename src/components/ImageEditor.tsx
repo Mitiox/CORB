@@ -315,17 +315,18 @@ export default function ImageEditor() {
 
   return (
     <div className="w-screen h-screen bg-[#e0e5ec] text-slate-700 font-sans flex flex-col overflow-hidden select-none">
+      
       {/* Top Navigation Bar */}
-      <nav className="h-16 flex items-center justify-between px-6 neo-flat mb-2 rounded-b-xl mx-4 shadow-lg shrink-0">
+      <nav className="h-16 flex items-center justify-between px-6 neo-flat mb-1 rounded-b-xl mx-4 shadow-lg shrink-0">
         <div className="flex items-center gap-3">
           <img src={corbLogo} alt="Corb Logo" className="w-8 h-8 object-cover shrink-0" referrerPolicy="no-referrer" />
           <span className="font-semibold tracking-wider text-sm">CORB</span>
         </div>
-        <div className="flex items-center gap-4 sm:gap-6">
+          <div className="flex items-center gap-4 sm:gap-6">
           {step !== 'upload' && (
             <button 
               onClick={reset} 
-              className="px-4 py-1.5 neo-convex text-slate-700 hover:neo-pressed font-bold text-xs rounded text-slate-900 transition-colors uppercase active:scale-95 active:neo-pressed border border-white/60"
+              className="px-4 py-1.5 neo-convex text-slate-700 hover:!bg-black hover:!bg-none hover:text-white font-bold text-xs rounded transition-colors uppercase active:scale-95 active:neo-pressed border border-white/60"
             >
               Reset
             </button>
@@ -334,7 +335,7 @@ export default function ImageEditor() {
             <button 
               onClick={undoCrop} 
               disabled={isLoading}
-              className="px-4 py-1.5 neo-convex text-slate-700 hover:neo-pressed font-bold text-xs rounded text-slate-900 transition-colors uppercase disabled:opacity-50 disabled:hover:neo-concave disabled:hover:text-slate-800 active:scale-95 active:neo-pressed border border-white/60"
+              className="px-4 py-1.5 neo-convex text-slate-700 hover:!bg-black hover:!bg-none hover:text-white font-bold text-xs rounded transition-colors uppercase disabled:opacity-50 disabled:hover:!bg-none disabled:hover:!bg-transparent disabled:hover:text-slate-700 active:scale-95 active:neo-pressed border border-white/60"
             >
               Undo Edit
             </button>
@@ -343,7 +344,7 @@ export default function ImageEditor() {
             <button 
               onClick={exportResult} 
               disabled={isLoading}
-              className="px-4 py-1.5 neo-convex text-slate-700 hover:neo-pressed font-bold text-xs rounded text-slate-900 transition-colors uppercase disabled:opacity-50 disabled:hover:neo-concave disabled:hover:text-slate-800 active:scale-95 active:neo-pressed border border-white/60"
+              className="px-4 py-1.5 neo-convex text-slate-700 hover:!bg-black hover:!bg-none hover:text-white font-bold text-xs rounded transition-colors uppercase disabled:opacity-50 disabled:hover:!bg-none disabled:hover:!bg-transparent disabled:hover:text-slate-700 active:scale-95 active:neo-pressed border border-white/60"
             >
               Export Result
             </button>
@@ -351,16 +352,17 @@ export default function ImageEditor() {
         </div>
       </nav>
 
+
       {/* Main Workspace */}
       <main className="flex-1 flex overflow-hidden">
         {/* Sidebar Controls */}
-        <aside className="w-72 sm:w-80 neo-flat flex flex-col p-6 gap-4 overflow-y-auto shrink-0 z-10 m-4 rounded-xl border border-slate-300">
+        <aside className="w-72 sm:w-80 neo-flat flex flex-col p-6 gap-4 overflow-y-auto shrink-0 z-10 mx-4 mb-4 mt-1 rounded-xl border border-slate-300">
           <section>
             <div className="space-y-3">
               <label 
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
-                className="group relative flex flex-col items-center justify-center border-2 border-dashed border-slate-300 neo-flat rounded-lg p-4 text-center cursor-pointer hover:border-cyan-500 hover:neo-concave transition-all"
+                className="group relative flex flex-col items-center justify-center border-2 border-dashed border-slate-300 neo-flat rounded-lg p-3 py-3 text-center cursor-pointer hover:border-cyan-500 hover:neo-concave transition-all"
               >
                 <div className="text-xs text-slate-500">Drop image here or click</div>
                 <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} />
@@ -385,7 +387,7 @@ export default function ImageEditor() {
             </div>
           </section>
 
-          <section>
+          <section className="mt-8">
             <div className="space-y-4">
               <div className="neo-flat p-2 rounded-xl flex flex-col gap-2 ">
                 <button
@@ -528,7 +530,7 @@ export default function ImageEditor() {
               )}
             </div>
 
-            <div className="mb-4 neo-flat p-2 rounded-xl ">
+            <div className="mb-4 neo-flat p-2 rounded-xl mt-8">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Output Specs</h3>
                 <button 
@@ -616,6 +618,8 @@ export default function ImageEditor() {
           onDragOver={handleDragOver}
           onDrop={handleDrop}
         >
+          
+          
           <div style={{ transform: `scale(${zoom})`, transition: 'transform 0.1s ease-out', transformOrigin: 'center center' }} className="flex items-center justify-center max-w-full max-h-full">
             {step === 'upload' && !sourceImage && (
                <div className="text-slate-500 font-mono text-xs uppercase tracking-widest opacity-50">
@@ -664,6 +668,7 @@ export default function ImageEditor() {
                       style={{ maxHeight: 'calc(100vh - 12rem)' }} // Account for header/footer padding
                     />
                   )}
+                  
                   {isLoading && (
                     <div className="absolute top-4 left-4 neo-flat px-3 py-1 rounded  text-[10px] text-cyan-600 uppercase tracking-widest font-mono z-10">
                       PROCESSING...
@@ -671,7 +676,6 @@ export default function ImageEditor() {
                   )}
                </div>
             )}
-
           </div>
 
           {isCroppingMode && (
@@ -720,8 +724,6 @@ export default function ImageEditor() {
           )}
         </div>
       </main>
-
-      
     </div>
   );
 }

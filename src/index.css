@@ -1,6 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&display=swap');
 @import "tailwindcss";
 
 @theme {
+  --font-sans: "Oxanium", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Oxanium", ui-monospace, SFMono-Regular, monospace;
   --color-neo-bg: #e0e5ec;
   --color-neo-text: #4a5568;
   --color-neo-accent: #3182ce;
