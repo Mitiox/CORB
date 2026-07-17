@@ -1,1 +1,30 @@
 @import "tailwindcss";
+
+@theme {
+  --color-neo-bg: #e0e5ec;
+  --color-neo-text: #4a5568;
+  --color-neo-accent: #3182ce;
+}
+
+@layer utilities {
+  .neo-flat {
+    background-color: var(--color-neo-bg);
+    box-shadow: 9px 9px 16px rgba(163, 177, 198, 0.6), -9px -9px 16px rgba(255, 255, 255, 0.5);
+  }
+  
+  .neo-pressed {
+    background-color: var(--color-neo-bg);
+    box-shadow: inset 6px 6px 10px 0 rgba(163, 177, 198, 0.7), inset -6px -6px 10px 0 rgba(255, 255, 255, 0.8);
+  }
+
+  .neo-convex {
+    background: linear-gradient(145deg, #f0f5fd, #c9ced4);
+    box-shadow: 9px 9px 16px rgba(163, 177, 198, 0.6), -9px -9px 16px rgba(255, 255, 255, 0.5);
+  }
+
+  .neo-concave {
+    background: linear-gradient(145deg, #c9ced4, #f0f5fd);
+    box-shadow: 9px 9px 16px rgba(163, 177, 198, 0.6), -9px -9px 16px rgba(255, 255, 255, 0.5);
+  }
+}
+
