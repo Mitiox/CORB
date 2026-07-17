@@ -1,0 +1,8 @@
+{
+  "name": "Corb",
+  "description": "Upload an image, AI suggests a tight crop, removes the background, and resizes it.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
