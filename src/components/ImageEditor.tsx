@@ -1,4 +1,6 @@
-import React, { useState, useRef, useCallback } from 'react';
+import { flushSync } from 'react-dom';
+import React, { useEffect,
+ useState, useRef, useCallback } from 'react';
 import ReactCrop, { type Crop, type PixelCrop, centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import corbLogo from '../assets/images/Logo.png';
@@ -6,6 +8,30 @@ import corbLogo from '../assets/images/Logo.png';
 type Step = 'upload' | 'crop';
 
 export default function ImageEditor() {
+
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
+  const toggleTheme = () => {
+    if (!document.startViewTransition) {
+      setIsDarkMode(!isDarkMode);
+      return;
+    }
+    
+    document.startViewTransition(() => {
+      flushSync(() => {
+        setIsDarkMode(!isDarkMode);
+      });
+    });
+  };
+
   const [step, setStep] = useState<Step>('upload');
   
   // Inputs
@@ -314,7 +340,7 @@ export default function ImageEditor() {
   };
 
   return (
-    <div className="w-screen h-screen bg-[#e0e5ec] text-slate-700 font-sans flex flex-col overflow-hidden select-none">
+    <div className="w-screen h-screen bg-page text-main font-sans flex flex-col overflow-hidden select-none">
       
       {/* Top Navigation Bar */}
       <nav className="h-16 flex items-center justify-between px-6 neo-flat mb-1 rounded-b-xl mx-4 shadow-lg shrink-0">
@@ -323,10 +349,18 @@ export default function ImageEditor() {
           <span className="font-semibold tracking-wider text-sm">CORB</span>
         </div>
           <div className="flex items-center gap-4 sm:gap-6">
+
+          <button 
+            onClick={toggleTheme} 
+            className="px-4 py-1.5 neo-convex text-main font-bold text-xs rounded transition-colors uppercase active:scale-95 active:neo-pressed border border-neo"
+            title="Toggle Theme"
+          >
+            {isDarkMode ? 'Light' : 'Dark'}
+          </button>
           {step !== 'upload' && (
             <button 
               onClick={reset} 
-              className="px-4 py-1.5 neo-convex text-slate-700 hover:!bg-black hover:!bg-none hover:text-white font-bold text-xs rounded transition-colors uppercase active:scale-95 active:neo-pressed border border-white/60"
+              className="px-4 py-1.5 neo-convex text-main hover:!bg-black hover:!bg-none hover:text-white font-bold text-xs rounded transition-colors uppercase active:scale-95 active:neo-pressed border border-neo"
             >
               Reset
             </button>
@@ -335,7 +369,7 @@ export default function ImageEditor() {
             <button 
               onClick={undoCrop} 
               disabled={isLoading}
-              className="px-4 py-1.5 neo-convex text-slate-700 hover:!bg-black hover:!bg-none hover:text-white font-bold text-xs rounded transition-colors uppercase disabled:opacity-50 disabled:hover:!bg-none disabled:hover:!bg-transparent disabled:hover:text-slate-700 active:scale-95 active:neo-pressed border border-white/60"
+              className="px-4 py-1.5 neo-convex text-main hover:!bg-black hover:!bg-none hover:text-white font-bold text-xs rounded transition-colors uppercase disabled:opacity-50 disabled:hover:!bg-none disabled:hover:!bg-transparent disabled:hover:text-main active:scale-95 active:neo-pressed border border-neo"
             >
               Undo Edit
             </button>
@@ -344,7 +378,7 @@ export default function ImageEditor() {
             <button 
               onClick={exportResult} 
               disabled={isLoading}
-              className="px-4 py-1.5 neo-convex text-slate-700 hover:!bg-black hover:!bg-none hover:text-white font-bold text-xs rounded transition-colors uppercase disabled:opacity-50 disabled:hover:!bg-none disabled:hover:!bg-transparent disabled:hover:text-slate-700 active:scale-95 active:neo-pressed border border-white/60"
+              className="px-4 py-1.5 neo-convex text-main hover:!bg-black hover:!bg-none hover:text-white font-bold text-xs rounded transition-colors uppercase disabled:opacity-50 disabled:hover:!bg-none disabled:hover:!bg-transparent disabled:hover:text-main active:scale-95 active:neo-pressed border border-neo"
             >
               Export Result
             </button>
@@ -356,15 +390,15 @@ export default function ImageEditor() {
       {/* Main Workspace */}
       <main className="flex-1 flex overflow-hidden">
         {/* Sidebar Controls */}
-        <aside className="w-72 sm:w-80 neo-flat flex flex-col p-6 gap-4 overflow-y-auto shrink-0 z-10 mx-4 mb-4 mt-1 rounded-xl border border-slate-300">
+        <aside className="w-72 sm:w-80 neo-flat flex flex-col p-6 gap-4 overflow-y-auto shrink-0 z-10 mx-4 mb-4 mt-1 rounded-xl border border-neo">
           <section>
             <div className="space-y-3">
               <label 
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
-                className="group relative flex flex-col items-center justify-center border-2 border-dashed border-slate-300 neo-flat rounded-lg p-3 py-3 text-center cursor-pointer hover:border-cyan-500 hover:neo-concave transition-all"
+                className="group relative flex flex-col items-center justify-center border-2 border-dashed border-neo neo-flat rounded-lg p-3 py-3 text-center cursor-pointer hover:border-cyan-500 hover:neo-concave transition-all"
               >
-                <div className="text-xs text-slate-500">Drop image here or click</div>
+                <div className="text-xs text-muted">Drop image here or click</div>
                 <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} />
               </label>
               
@@ -372,14 +406,14 @@ export default function ImageEditor() {
                 <input 
                   type="text" 
                   placeholder="Paste image URL..." 
-                  className="w-full neo-pressed rounded px-3 py-2 text-xs focus:border-cyan-500 focus:outline-none placeholder-slate-600 text-slate-700"
+                  className="w-full neo-pressed rounded px-3 py-2 text-xs focus:border-cyan-500 focus:outline-none placeholder:text-muted text-main"
                   value={urlInput}
                   onChange={(e) => setUrlInput(e.target.value)}
                 />
                 <button 
                   onClick={handleUrlLoad}
                   disabled={isLoading || !urlInput}
-                  className="neo-convex hover:neo-pressed text-slate-800 font-bold rounded px-3 py-2 text-xs transition-colors disabled:opacity-50 active:scale-95 active:neo-pressed border border-white/60"
+                  className="neo-convex hover:neo-pressed text-main font-bold rounded px-3 py-2 text-xs transition-colors disabled:opacity-50 active:scale-95 active:neo-pressed border border-neo"
                 >
                   Load
                 </button>
@@ -406,13 +440,13 @@ export default function ImageEditor() {
                     }
                   }}
                   disabled={isLoading || step !== 'crop' || isCroppingMode}
-                  className="w-full p-2 neo-convex text-cyan-600 rounded hover:neo-pressed transition-all font-bold text-xs uppercase tracking-widest disabled:opacity-50 text-center active:scale-95 active:neo-pressed border border-white/60"
+                  className="w-full p-2 neo-convex text-cyan-600 rounded hover:neo-pressed transition-all font-bold text-xs uppercase tracking-widest disabled:opacity-50 text-center active:scale-95 active:neo-pressed border border-neo"
                 >
                   Crop
                 </button>
                 {isCroppingMode && (
-                  <div className="pt-2 border-t border-slate-300/50">
-                    <div className="text-[8px] text-slate-500 uppercase mb-2">Aspect Ratio</div>
+                  <div className="pt-2 border-t border-neo">
+                    <div className="text-[8px] text-muted uppercase mb-2">Aspect Ratio</div>
                     <div className="grid grid-cols-5 gap-1">
                        {[{ label: 'Free', val: undefined }, { label: '1:1', val: 1 }, { label: '16:9', val: 16/9 }, { label: '4:3', val: 4/3 }, { label: '3:2', val: 3/2 }].map(ar => (
                          <button
@@ -431,7 +465,7 @@ export default function ImageEditor() {
                                }
                              }
                            }}
-                           className={`py-1 text-[10px] rounded transition-colors ${aspectRatio === ar.val ? 'neo-pressed text-cyan-600 font-bold' : 'neo-convex text-slate-600 hover:neo-pressed'}`}
+                           className={`py-1 text-[10px] rounded transition-colors ${aspectRatio === ar.val ? 'neo-pressed text-cyan-600 font-bold' : 'neo-convex text-muted hover:neo-pressed'}`}
                          >
                            {ar.label}
                          </button>
@@ -445,16 +479,16 @@ export default function ImageEditor() {
                 <button
                   onClick={removeBgOnly}
                   disabled={isLoading || step !== 'crop'}
-                  className="w-full p-2 neo-convex text-emerald-600 rounded hover:neo-pressed transition-all font-bold text-xs uppercase tracking-widest disabled:opacity-50 text-center active:scale-95 active:neo-pressed border border-white/60"
+                  className="w-full p-2 neo-convex text-emerald-600 rounded hover:neo-pressed transition-all font-bold text-xs uppercase tracking-widest disabled:opacity-50 text-center active:scale-95 active:neo-pressed border border-neo"
                 >
                   Remove Background
                 </button>
                 {showBgOptions && (
-                  <div className="pt-2 border-t border-slate-300/50">
+                  <div className="pt-2 border-t border-neo">
                     <div className="flex items-center justify-between">
-                      <div className="text-[8px] text-slate-500 uppercase">Background</div>
+                      <div className="text-[8px] text-muted uppercase">Background</div>
                       <div className="flex items-center gap-2">
-                        <label className="text-[10px] flex items-center gap-1 cursor-pointer text-slate-600">
+                        <label className="text-[10px] flex items-center gap-1 cursor-pointer text-muted">
                           <input type="checkbox" checked={isTransparent} onChange={(e) => setIsTransparent(e.target.checked)} className="accent-cyan-500" />
                           Transparent
                         </label>
@@ -481,7 +515,7 @@ export default function ImageEditor() {
                 className="flex items-center justify-between p-1.5 hover:neo-concave transition-colors w-full text-left rounded"
               >
                 <span className="text-[10px] text-cyan-600 font-bold uppercase tracking-wider">Color Picker Tool</span>
-                <span className="text-slate-500 flex items-center justify-center w-4 h-4">
+                <span className="text-muted flex items-center justify-center w-4 h-4">
                   {isColorPickerExpanded ? (
                     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                   ) : (
@@ -498,7 +532,7 @@ export default function ImageEditor() {
                         type="text" 
                         readOnly 
                         value={pickedColor || 'Select...'} 
-                        className="flex-1 neo-pressed rounded px-2 py-1 text-[10px] font-mono text-slate-800 text-center"
+                        className="flex-1 neo-pressed rounded px-2 py-1 text-[10px] font-mono text-main text-center"
                      />
                      <button 
                         onClick={(e) => { 
@@ -508,7 +542,7 @@ export default function ImageEditor() {
                             setTimeout(() => setCopiedState(prev => ({ ...prev, show: false })), 2000);
                           }
                         }}
-                        className="p-1.5 neo-convex hover:neo-pressed rounded text-slate-600 disabled:opacity-50 active:scale-95 active:neo-pressed border border-white/60"
+                        className="p-1.5 neo-convex hover:neo-pressed rounded text-muted disabled:opacity-50 active:scale-95 active:neo-pressed border border-neo"
                         title="Copy"
                         disabled={!pickedColor}
                      >
@@ -521,7 +555,7 @@ export default function ImageEditor() {
                     className={`w-full py-1.5 text-[10px] uppercase font-bold tracking-wider rounded border transition-colors ${
                       isEyedropperActive 
                         ? 'bg-cyan-500/20 text-cyan-600 border-cyan-500/50 shadow-[0_0_10px_rgba(34,211,238,0.2)]' 
-                        : 'neo-convex text-slate-600 hover:neo-pressed hover:text-slate-800'
+                        : 'neo-convex text-muted hover:neo-pressed hover:text-main'
                     }`}
                   >
                     {isEyedropperActive ? 'Click Image to Pick Color' : 'Pick from Image'}
@@ -532,7 +566,7 @@ export default function ImageEditor() {
 
             <div className="mb-4 neo-flat p-2 rounded-xl mt-8">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Output Specs</h3>
+                <h3 className="text-[10px] font-bold text-muted uppercase tracking-widest">Output Specs</h3>
                 <button 
                   onClick={() => {
                     if (imgRef.current) {
@@ -548,38 +582,38 @@ export default function ImageEditor() {
               </div>
               <div className="grid grid-cols-2 gap-x-2 gap-y-1">
                 <div className="flex items-center justify-between neo-pressed px-2 py-1 rounded">
-                  <span className="text-[8px] text-slate-500 uppercase">W</span>
+                  <span className="text-[8px] text-muted uppercase">W</span>
                   <input 
                     type="number" 
                     value={targetWidth} 
                     onChange={e => setTargetWidth(Number(e.target.value))}
-                    className="w-12 bg-transparent text-[10px] font-mono text-slate-700 outline-none text-right"
+                    className="w-12 bg-transparent text-[10px] font-mono text-main outline-none text-right"
                   />
                 </div>
                 <div className="flex items-center justify-between neo-pressed px-2 py-1 rounded">
-                  <span className="text-[8px] text-slate-500 uppercase">H</span>
+                  <span className="text-[8px] text-muted uppercase">H</span>
                   <input 
                     type="number" 
                     value={targetHeight} 
                     onChange={e => setTargetHeight(Number(e.target.value))}
-                    className="w-12 bg-transparent text-[10px] font-mono text-slate-700 outline-none text-right"
+                    className="w-12 bg-transparent text-[10px] font-mono text-main outline-none text-right"
                   />
                 </div>
                 <div className="flex items-center justify-between neo-pressed px-2 py-1 rounded col-span-2 mt-1">
-                  <span className="text-[8px] text-slate-500 uppercase">Format</span>
+                  <span className="text-[8px] text-muted uppercase">Format</span>
                   <select 
                     value={exportFormat} 
                     onChange={e => setExportFormat(e.target.value as any)}
-                    className="bg-transparent border-none px-1 text-[10px] font-mono text-slate-700 outline-none cursor-pointer"
+                    className="bg-transparent border-none px-1 text-[10px] font-mono text-main outline-none cursor-pointer"
                   >
-                    <option value="image/png" className="bg-[#e0e5ec] text-slate-700">PNG</option>
-                    <option value="image/jpeg" className="bg-[#e0e5ec] text-slate-700">JPEG</option>
-                    <option value="image/webp" className="bg-[#e0e5ec] text-slate-700">WEBP</option>
+                    <option value="image/png" className="bg-page text-main">PNG</option>
+                    <option value="image/jpeg" className="bg-page text-main">JPEG</option>
+                    <option value="image/webp" className="bg-page text-main">WEBP</option>
                   </select>
                 </div>
                 {exportFormat !== 'image/png' && (
                   <div className="flex items-center justify-between neo-pressed px-2 py-1 rounded col-span-2 mt-1 gap-2">
-                    <span className="text-[8px] text-slate-500 uppercase shrink-0">Quality</span>
+                    <span className="text-[8px] text-muted uppercase shrink-0">Quality</span>
                     <input 
                       type="range" 
                       min="1" 
@@ -588,7 +622,7 @@ export default function ImageEditor() {
                       onChange={e => setExportQuality(Number(e.target.value))}
                       className="flex-1 accent-cyan-500 h-1"
                     />
-                    <span className="text-[8px] font-mono text-slate-600 w-6 text-right shrink-0">{exportQuality}%</span>
+                    <span className="text-[8px] font-mono text-muted w-6 text-right shrink-0">{exportQuality}%</span>
                   </div>
                 )}
               </div>
@@ -597,11 +631,11 @@ export default function ImageEditor() {
             {error ? (
                <div className="mt-4 text-[10px] text-red-400 font-serif">{error}</div>
             ) : isLoading ? (
-               <div className="mt-4 text-[10px] text-slate-500 italic font-serif">
+               <div className="mt-4 text-[10px] text-muted italic font-serif">
                  {loadingMsg}
                </div>
             ) : step === 'crop' && (
-               <div className="mt-4 text-[10px] text-slate-500 italic font-serif">
+               <div className="mt-4 text-[10px] text-muted italic font-serif">
                  Ready to export.
                </div>
             )}
@@ -622,7 +656,7 @@ export default function ImageEditor() {
           
           <div style={{ transform: `scale(${zoom})`, transition: 'transform 0.1s ease-out', transformOrigin: 'center center' }} className="flex items-center justify-center max-w-full max-h-full">
             {step === 'upload' && !sourceImage && (
-               <div className="text-slate-500 font-mono text-xs uppercase tracking-widest opacity-50">
+               <div className="text-muted font-mono text-xs uppercase tracking-widest opacity-50">
                   NO SOURCE LOADED
                </div>
             )}
@@ -682,13 +716,13 @@ export default function ImageEditor() {
             <div className="absolute bottom-8 right-8 flex items-center gap-4 z-50">
               <button 
                 onClick={() => { setIsCroppingMode(false); setCrop(undefined); }}
-                className="neo-convex hover:neo-pressed text-slate-800 font-bold px-4 py-2 rounded text-xs uppercase tracking-widest shadow-lg transition-colors  backdrop-blur-md active:scale-95 active:neo-pressed border border-white/60"
+                className="neo-convex hover:neo-pressed text-main font-bold px-4 py-2 rounded text-xs uppercase tracking-widest shadow-lg transition-colors  backdrop-blur-md active:scale-95 active:neo-pressed border border-neo"
               >
                 Cancel
               </button>
               <button 
                 onClick={applyCrop}
-                className="neo-convex hover:neo-pressed text-emerald-600 font-bold font-bold px-6 py-2 rounded text-xs uppercase tracking-widest shadow-lg transition-colors shadow-emerald-500/20 active:scale-95 active:neo-pressed border border-white/60"
+                className="neo-convex hover:neo-pressed text-emerald-600 font-bold font-bold px-6 py-2 rounded text-xs uppercase tracking-widest shadow-lg transition-colors shadow-emerald-500/20 active:scale-95 active:neo-pressed border border-neo"
               >
                 OK
               </button>
@@ -716,10 +750,10 @@ export default function ImageEditor() {
           {/* Zoom Controls */}
           {sourceImage && (
             <div className="absolute bottom-8 left-8 flex gap-1.5 z-50 neo-flat p-1.5 rounded ">
-              <button onClick={() => setZoom(z => Math.max(0.1, z - 0.1))} className="w-7 h-7 flex items-center justify-center text-slate-800 neo-convex hover:neo-pressed rounded transition-colors text-lg leading-none active:scale-95 active:neo-pressed border border-white/60">-</button>
-              <div className="w-12 h-7 flex items-center justify-center text-xs font-mono text-slate-800 select-none neo-pressed rounded">{Math.round(zoom * 100)}%</div>
-              <button onClick={() => setZoom(z => Math.min(5, z + 0.1))} className="w-7 h-7 flex items-center justify-center text-slate-800 neo-convex hover:neo-pressed rounded transition-colors text-lg leading-none active:scale-95 active:neo-pressed border border-white/60">+</button>
-              <button onClick={() => setZoom(1)} className="px-2 h-7 flex items-center justify-center text-[10px] text-cyan-600 font-mono neo-convex hover:neo-pressed rounded transition-colors uppercase tracking-widest ml-1 active:scale-95 active:neo-pressed border border-white/60">Reset</button>
+              <button onClick={() => setZoom(z => Math.max(0.1, z - 0.1))} className="w-7 h-7 flex items-center justify-center text-main neo-convex hover:neo-pressed rounded transition-colors text-lg leading-none active:scale-95 active:neo-pressed border border-neo">-</button>
+              <div className="w-12 h-7 flex items-center justify-center text-xs font-mono text-main select-none neo-pressed rounded">{Math.round(zoom * 100)}%</div>
+              <button onClick={() => setZoom(z => Math.min(5, z + 0.1))} className="w-7 h-7 flex items-center justify-center text-main neo-convex hover:neo-pressed rounded transition-colors text-lg leading-none active:scale-95 active:neo-pressed border border-neo">+</button>
+              <button onClick={() => setZoom(1)} className="px-2 h-7 flex items-center justify-center text-[10px] text-cyan-600 font-mono neo-convex hover:neo-pressed rounded transition-colors uppercase tracking-widest ml-1 active:scale-95 active:neo-pressed border border-neo">Reset</button>
             </div>
           )}
         </div>
