@@ -1,116 +1,13 @@
-@import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&display=swap');
-@import "tailwindcss";
+const fs = require('fs');
+let css = fs.readFileSync('src/index.css', 'utf8');
 
-@theme {
-  --font-sans: "Oxanium", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Oxanium", ui-monospace, SFMono-Regular, monospace;
-  --color-neo-bg: var(--theme-neo-bg);
-  --color-neo-text: var(--theme-neo-text);
-  --color-neo-accent: var(--theme-neo-accent);
-}
-
-@layer utilities {
-  .neo-flat {
-    background-color: var(--color-neo-bg);
-    box-shadow: 9px 9px 16px var(--shadow-dark), -9px -9px 16px var(--shadow-light);
-  }
-  
-  .neo-pressed {
-    background-color: var(--color-neo-bg);
-    box-shadow: inset 6px 6px 10px 0 var(--shadow-pressed-dark), inset -6px -6px 10px 0 var(--shadow-pressed-light);
-  }
-
-  .neo-convex {
-    background: linear-gradient(145deg, var(--grad-light), var(--grad-dark));
-    box-shadow: 9px 9px 16px var(--shadow-dark), -9px -9px 16px var(--shadow-light);
-  }
-
-  .neo-concave {
-    background: linear-gradient(145deg, var(--grad-dark), var(--grad-light));
-    box-shadow: 9px 9px 16px var(--shadow-dark), -9px -9px 16px var(--shadow-light);
-  }
-}
-
-
-:root {
-  --theme-neo-bg: #e0e5ec;
-  --theme-neo-text: #4a5568;
-  --theme-neo-accent: #3182ce;
-  
-  --shadow-light: rgba(255, 255, 255, 0.5);
-  --shadow-dark: rgba(163, 177, 198, 0.6);
-  --shadow-pressed-light: rgba(255, 255, 255, 0.8);
-  --shadow-pressed-dark: rgba(163, 177, 198, 0.7);
-  
-  --grad-light: #f0f5fd;
-  --grad-dark: #c9ced4;
-  
-  --color-page-bg: #e0e5ec;
-  --color-text-main: #334155;
-  --color-text-muted: #64748b;
-  --color-border: rgba(255, 255, 255, 0.6);
-}
-
-.dark {
-  --theme-neo-bg: #2d3748;
-  --theme-neo-text: #e2e8f0;
-  --theme-neo-accent: #63b3ed;
-  
-  --shadow-light: rgba(255, 255, 255, 0.05);
-  --shadow-dark: rgba(0, 0, 0, 0.4);
-  --shadow-pressed-light: rgba(255, 255, 255, 0.05);
-  --shadow-pressed-dark: rgba(0, 0, 0, 0.5);
-  
-  --grad-light: #323d50;
-  --grad-dark: #283140;
-
-  --color-page-bg: #1a202c;
-  --color-text-main: #f8fafc;
-  --color-text-muted: #94a3b8;
-  --color-border: rgba(255, 255, 255, 0.05);
-}
-
-::view-transition-group(root) {
-  animation-duration: 0.7s;
-  animation-timing-function: cubic-bezier(0.8, 0, 0.2, 1);
-}
-
-::view-transition-old(root) {
-  animation: none;
-  z-index: -1;
-}
-
-::view-transition-new(root) {
-  animation: reveal-light 0.7s;
-}
-
-.dark::view-transition-new(root) {
-  animation: reveal-dark 0.7s;
-}
-
-@keyframes reveal-dark {
-  from { clip-path: circle(0% at 90% 5%); }
-  to { clip-path: circle(150% at 90% 5%); }
-}
-
-@keyframes reveal-light {
-  from { clip-path: circle(0% at 90% 5%); }
-  to { clip-path: circle(150% at 90% 5%); }
-}
-
-@layer utilities {
-  .bg-page { background-color: var(--color-page-bg); }
-  .text-main { color: var(--color-text-main); }
-  .text-muted { color: var(--color-text-muted); }
-  .border-neo { border-color: var(--color-border); }
-}
-
-
-/* From Uiverse.io by mamyapro123 */ 
-
-/* From Uiverse.io by mamyapro123 */ 
+// Find the start of the theme-switch CSS and remove it
+const index = css.indexOf('.theme-switch {');
+if (index !== -1) {
+    const header = css.substring(0, index);
+    const uiverseCode = `/* From Uiverse.io by mamyapro123 */ 
 .theme-switch {
-  --toggle-size: 11px;
+  --toggle-size: 32px;
   --container-width: 5.625em;
   --container-height: 2.5em;
   --container-radius: 0.38em;
@@ -668,4 +565,7 @@
   100% {
     transform: translateY(-100%) translateX(50%);
   }
+}
+`;
+    fs.writeFileSync('src/index.css', header + '\n' + uiverseCode);
 }
