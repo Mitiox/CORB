@@ -925,7 +925,7 @@ export default function ImageEditor() {
               <button onClick={() => setZoom(z => Math.max(0.1, z - 0.1))} className="w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center text-main neo-convex hover:neo-pressed rounded transition-colors text-base sm:text-lg leading-none active:scale-95 active:neo-pressed border border-neo">-</button>
               <div className="w-10 sm:w-12 h-6 sm:h-7 flex items-center justify-center text-[10px] sm:text-xs font-mono text-main select-none neo-pressed rounded">{Math.round(zoom * 100)}%</div>
               <button onClick={() => setZoom(z => Math.min(5, z + 0.1))} className="w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center text-main neo-convex hover:neo-pressed rounded transition-colors text-base sm:text-lg leading-none active:scale-95 active:neo-pressed border border-neo">+</button>
-              <button onClick={() => setZoom(1)} className="px-1 sm:px-2 h-6 sm:h-7 flex items-center justify-center text-[9px] sm:text-[10px] text-cyan-600 font-mono neo-convex hover:neo-pressed rounded transition-colors uppercase tracking-widest ml-1 active:scale-95 active:neo-pressed border border-neo">Reset</button>
+              <button onClick={() => { setZoom(1); setPan({x: 0, y: 0}); }} className="px-1 sm:px-2 h-6 sm:h-7 flex items-center justify-center text-[9px] sm:text-[10px] text-cyan-600 font-mono neo-convex hover:neo-pressed rounded transition-colors uppercase tracking-widest ml-1 active:scale-95 active:neo-pressed border border-neo">Reset</button>
             </div>
           )}
         </div>
