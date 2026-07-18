@@ -57,6 +57,10 @@ export default function ImageEditor() {
   const [error, setError] = useState('');
   const [isCroppingMode, setIsCroppingMode] = useState(false);
   const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
+  const [lastPanPos, setLastPanPos] = useState({ x: 0, y: 0 });
+
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isEyedropperActive, setIsEyedropperActive] = useState(false);
   const [pickedColor, setPickedColor] = useState<string>('');
@@ -329,6 +333,33 @@ export default function ImageEditor() {
     }
   };
 
+  
+  const handlePointerDown = (e: React.PointerEvent) => {
+    if (!isCroppingMode || e.button === 1) {
+      setIsPanning(true);
+      setLastPanPos({ x: e.clientX, y: e.clientY });
+      (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    }
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    setMousePos({ x: e.clientX, y: e.clientY });
+    if (isPanning) {
+      setPan(prev => ({
+        x: prev.x + (e.clientX - lastPanPos.x),
+        y: prev.y + (e.clientY - lastPanPos.y)
+      }));
+      setLastPanPos({ x: e.clientX, y: e.clientY });
+    }
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    setIsPanning(false);
+    try {
+      (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+    } catch (err) {}
+  };
+
   const reset = () => {
     setStep('upload');
     setSourceImage('');
@@ -337,6 +368,8 @@ export default function ImageEditor() {
     setIsCroppingMode(false);
     setError('');
     setShowBgOptions(false);
+    setPan({x:0, y:0});
+    setZoom(1);
   };
 
   return (
@@ -388,9 +421,9 @@ export default function ImageEditor() {
 
 
       {/* Main Workspace */}
-      <main className="flex-1 flex overflow-hidden">
+      <main className="flex-1 flex flex-col-reverse sm:flex-row overflow-hidden">
         {/* Sidebar Controls */}
-        <aside className="w-72 sm:w-80 neo-flat flex flex-col p-6 gap-4 overflow-y-auto shrink-0 z-10 mx-4 mb-4 mt-1 rounded-xl border border-neo">
+        <aside className="w-auto sm:w-80 h-1/3 sm:h-auto neo-flat flex flex-col p-6 gap-4 overflow-y-auto shrink-0 z-10 mx-4 mb-4 mt-1 rounded-xl border border-neo">
           <section>
             <div className="space-y-3">
               <label 
@@ -644,17 +677,21 @@ export default function ImageEditor() {
 
         {/* Viewer Area */}
         <div 
-          className="flex-1 relative flex items-center justify-center bg-transparent overflow-hidden p-6"
+          className={`flex-1 relative flex items-center justify-center bg-transparent overflow-hidden p-6 touch-none ${isPanning ? "cursor-grabbing" : (!isCroppingMode && sourceImage ? "cursor-grab" : "")}`}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
           onWheel={(e) => {
             setZoom(z => Math.max(0.1, Math.min(z - e.deltaY * 0.001, 5)));
           }}
-          onMouseMove={(e) => setMousePos({ x: e.clientX, y: e.clientY })}
+          
           onDragOver={handleDragOver}
           onDrop={handleDrop}
         >
           
           
-          <div style={{ transform: `scale(${zoom})`, transition: 'transform 0.1s ease-out', transformOrigin: 'center center' }} className="flex items-center justify-center max-w-full max-h-full">
+          <div style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transition: isPanning ? 'none' : 'transform 0.1s ease-out', transformOrigin: 'center center' }} className="flex items-center justify-center max-w-full max-h-full">
             {step === 'upload' && !sourceImage && (
                <div className="text-muted font-mono text-xs uppercase tracking-widest opacity-50">
                   NO SOURCE LOADED
@@ -713,16 +750,16 @@ export default function ImageEditor() {
           </div>
 
           {isCroppingMode && (
-            <div className="absolute bottom-8 right-8 flex items-center gap-4 z-50">
+            <div className="absolute bottom-4 right-4 sm:bottom-8 sm:right-8 flex items-center gap-2 sm:gap-4 z-50">
               <button 
                 onClick={() => { setIsCroppingMode(false); setCrop(undefined); }}
-                className="neo-convex hover:neo-pressed text-main font-bold px-4 py-2 rounded text-xs uppercase tracking-widest shadow-lg transition-colors  backdrop-blur-md active:scale-95 active:neo-pressed border border-neo"
+                className="neo-convex hover:neo-pressed text-main font-bold px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs uppercase tracking-widest shadow-lg transition-colors backdrop-blur-md active:scale-95 active:neo-pressed border border-neo"
               >
                 Cancel
               </button>
               <button 
                 onClick={applyCrop}
-                className="neo-convex hover:neo-pressed text-emerald-600 font-bold font-bold px-6 py-2 rounded text-xs uppercase tracking-widest shadow-lg transition-colors shadow-emerald-500/20 active:scale-95 active:neo-pressed border border-neo"
+                className="neo-convex hover:neo-pressed text-emerald-600 font-bold px-4 py-1.5 sm:px-6 sm:py-2 rounded text-xs uppercase tracking-widest shadow-lg transition-colors shadow-emerald-500/20 active:scale-95 active:neo-pressed border border-neo"
               >
                 OK
               </button>
@@ -749,11 +786,11 @@ export default function ImageEditor() {
 
           {/* Zoom Controls */}
           {sourceImage && (
-            <div className="absolute bottom-8 left-8 flex gap-1.5 z-50 neo-flat p-1.5 rounded ">
-              <button onClick={() => setZoom(z => Math.max(0.1, z - 0.1))} className="w-7 h-7 flex items-center justify-center text-main neo-convex hover:neo-pressed rounded transition-colors text-lg leading-none active:scale-95 active:neo-pressed border border-neo">-</button>
-              <div className="w-12 h-7 flex items-center justify-center text-xs font-mono text-main select-none neo-pressed rounded">{Math.round(zoom * 100)}%</div>
-              <button onClick={() => setZoom(z => Math.min(5, z + 0.1))} className="w-7 h-7 flex items-center justify-center text-main neo-convex hover:neo-pressed rounded transition-colors text-lg leading-none active:scale-95 active:neo-pressed border border-neo">+</button>
-              <button onClick={() => setZoom(1)} className="px-2 h-7 flex items-center justify-center text-[10px] text-cyan-600 font-mono neo-convex hover:neo-pressed rounded transition-colors uppercase tracking-widest ml-1 active:scale-95 active:neo-pressed border border-neo">Reset</button>
+            <div className="absolute bottom-4 left-4 sm:bottom-8 sm:left-8 flex gap-1 sm:gap-1.5 z-50 neo-flat p-1 sm:p-1.5 rounded">
+              <button onClick={() => setZoom(z => Math.max(0.1, z - 0.1))} className="w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center text-main neo-convex hover:neo-pressed rounded transition-colors text-base sm:text-lg leading-none active:scale-95 active:neo-pressed border border-neo">-</button>
+              <div className="w-10 sm:w-12 h-6 sm:h-7 flex items-center justify-center text-[10px] sm:text-xs font-mono text-main select-none neo-pressed rounded">{Math.round(zoom * 100)}%</div>
+              <button onClick={() => setZoom(z => Math.min(5, z + 0.1))} className="w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center text-main neo-convex hover:neo-pressed rounded transition-colors text-base sm:text-lg leading-none active:scale-95 active:neo-pressed border border-neo">+</button>
+              <button onClick={() => setZoom(1)} className="px-1 sm:px-2 h-6 sm:h-7 flex items-center justify-center text-[9px] sm:text-[10px] text-cyan-600 font-mono neo-convex hover:neo-pressed rounded transition-colors uppercase tracking-widest ml-1 active:scale-95 active:neo-pressed border border-neo">Reset</button>
             </div>
           )}
         </div>
